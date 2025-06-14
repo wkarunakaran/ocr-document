@@ -1,0 +1,55 @@
+import cv2
+import pytesseract
+from tkinter import Tk, filedialog
+import os
+
+# Set the path to Tesseract executable
+pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
+
+# Language code for Malayalam
+lang = 'mal'
+
+# Set TESSDATA path (adjust if needed)
+os.environ['TESSDATA_PREFIX'] = r'C:\Program Files\Tesseract-OCR\tessdata'
+
+# Malayalam Braille Map (basic, you can extend it)
+malayalam_braille_map = {
+    'അ': '⠁', 'ആ': '⠡', 'ഇ': '⠊', 'ഈ': '⠘', 'ഉ': '⠥', 'ഊ': '⠳',
+    'ഋ': '⠚', 'എ': '⠢', 'ഏ': '⠑', 'ഐ': '⠜', 'ഒ': '⠕', 'ഓ': '⠪', 'ഔ': '⠺',
+    'ക': '⠅', 'ഖ': '⠣', 'ഗ': '⠛', 'ഘ': '⠣⠛', 'ങ': '⠴',
+    'ച': '⠉', 'ഛ': '⠡⠉', 'ജ': '⠚', 'ഝ': '⠡⠚', 'ഞ': '⠒',
+    'ട': '⠞', 'ഠ': '⠡⠞', 'ഡ': '⠙', 'ഢ': '⠡⠙', 'ണ': '⠴',
+    'ത': '⠞', 'ഥ': '⠡⠞', 'ദ': '⠙', 'ധ': '⠡⠙', 'ന': '⠝',
+    'പ': '⠏', 'ഫ': '⠣⠏', 'ബ': '⠃', 'ഭ': '⠡⠃', 'മ': '⠍',
+    'യ': '⠽', 'ര': '⠗', 'ല': '⠇', 'വ': '⠧', 'ശ': '⠱',
+    'ഷ': '⠡⠱', 'സ': '⠎', 'ഹ': '⠓', 'ള': '⠸', 'ഴ': '⠷', 'റ': '⠾',
+    'ം': '⠂', 'ഃ': '⠄', '്': '⠈',
+    ' ': ' ', ',': '⠂', '.': '⠲', '?': '⠦', '!': '⠖'
+}
+
+def convert_to_malayalam_braille(text):
+    return ''.join([malayalam_braille_map.get(char, char) for char in text])
+
+def select_image():
+    root = Tk()
+    root.withdraw()
+
+    file_path = filedialog.askopenfilename(title="Select Image", filetypes=[("Image files", "*.png;*.jpg;*.jpeg;*.bmp;*.gif")])
+
+    if file_path:
+        img = cv2.imread(file_path)
+        if img is None:
+            print(f"Error: Unable to load image from {file_path}")
+        else:
+            gray_image = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+            text = pytesseract.image_to_string(gray_image, lang=lang)
+
+            print("Extracted Malayalam Text:")
+            print(text)
+
+            braille_text = convert_to_malayalam_braille(text)
+            print("\nMalayalam Braille Text:")
+            print(braille_text)
+
+# Start the OCR-Braille conversion
+select_image()
