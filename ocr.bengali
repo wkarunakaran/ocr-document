@@ -1,0 +1,62 @@
+import cv2
+import pytesseract
+from tkinter import Tk, filedialog
+import os
+
+# Path to Tesseract executable
+pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
+
+# Tesseract language code for Bengali
+lang = 'ben'
+
+# TESSDATA path
+os.environ['TESSDATA_PREFIX'] = r'C:\Program Files\Tesseract-OCR\tessdata'
+
+# Basic Bengali Braille mapping (can be extended as needed)
+bengali_braille_map = {
+    'অ': '⠁', 'আ': '⠡', 'ই': '⠊', 'ঈ': '⠘', 'উ': '⠥', 'ঊ': '⠳', 'ঋ': '⠚',
+    'এ': '⠢', 'ঐ': '⠜', 'ও': '⠕', 'ঔ': '⠺',
+
+    'ক': '⠅', 'খ': '⠣', 'গ': '⠛', 'ঘ': '⠡⠛', 'ঙ': '⠴',
+    'চ': '⠉', 'ছ': '⠡⠉', 'জ': '⠚', 'ঝ': '⠡⠚', 'ঞ': '⠒',
+    'ট': '⠞', 'ঠ': '⠡⠞', 'ড': '⠙', 'ঢ': '⠡⠙', 'ণ': '⠴',
+    'ত': '⠞', 'থ': '⠡⠞', 'দ': '⠙', 'ধ': '⠡⠙', 'ন': '⠝',
+
+    'প': '⠏', 'ফ': '⠣⠏', 'ব': '⠃', 'ভ': '⠡⠃', 'ম': '⠍',
+    'য': '⠽', 'র': '⠗', 'ল': '⠇', 'শ': '⠱', 'ষ': '⠡⠱', 'স': '⠎', 'হ': '⠓',
+
+    'া': '⠡', 'ি': '⠊', 'ী': '⠘', 'ু': '⠥', 'ূ': '⠳', 'ৃ': '⠚', 'ে': '⠢', 'ৈ': '⠜',
+    'ো': '⠕', 'ৌ': '⠺', 'ঁ': '⠂', 'ং': '⠒', 'ঃ': '⠄', '্': '⠈',
+
+    ' ': ' ', ',': '⠂', '.': '⠲', '?': '⠦', '!': '⠖'
+}
+
+def convert_to_bengali_braille(text):
+    return ''.join([bengali_braille_map.get(char, char) for char in text])
+
+def select_image():
+    root = Tk()
+    root.withdraw()
+
+    file_path = filedialog.askopenfilename(
+        title="Select Image", 
+        filetypes=[("Image files", "*.png;*.jpg;*.jpeg;*.bmp;*.gif")]
+    )
+
+    if file_path:
+        img = cv2.imread(file_path)
+        if img is None:
+            print(f"Error: Unable to load image from {file_path}")
+        else:
+            gray_image = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+            text = pytesseract.image_to_string(gray_image, lang=lang)
+
+            print("Extracted Bengali Text:")
+            print(text)
+
+            braille_text = convert_to_bengali_braille(text)
+            print("\nBengali Braille Text:")
+            print(braille_text)
+
+# Run the converter
+select_image()
