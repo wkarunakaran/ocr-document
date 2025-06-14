@@ -1,0 +1,54 @@
+import cv2
+import pytesseract
+from tkinter import Tk, filedialog
+import os
+
+# Set path to Tesseract executable
+pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
+
+# Use Hindi OCR
+lang = 'hin'
+
+# Optional: Path to tessdata folder if needed
+os.environ['TESSDATA_PREFIX'] = r'C:\Program Files\Tesseract-OCR\tessdata'
+
+# Hindi (Devanagari) Braille mapping (partial, extend as needed)
+hindi_braille_map = {
+    'अ': '⠁', 'आ': '⠡', 'इ': '⠊', 'ई': '⠘', 'उ': '⠥', 'ऊ': '⠳',
+    'ऋ': '⠚', 'ए': '⠑', 'ऐ': '⠜', 'ओ': '⠕', 'औ': '⠪',
+    'क': '⠅', 'ख': '⠣', 'ग': '⠛', 'घ': '⠣⠛', 'च': '⠉',
+    'छ': '⠡⠉', 'ज': '⠚', 'झ': '⠡⠚', 'ट': '⠞', 'ठ': '⠡⠞',
+    'ड': '⠙', 'ढ': '⠡⠙', 'त': '⠞', 'थ': '⠡⠞', 'द': '⠙',
+    'ध': '⠡⠙', 'न': '⠝', 'प': '⠏', 'फ': '⠣⠏', 'ब': '⠃',
+    'भ': '⠡⠃', 'म': '⠍', 'य': '⠽', 'र': '⠗', 'ल': '⠇',
+    'व': '⠧', 'श': '⠱', 'ष': '⠱⠱', 'स': '⠎', 'ह': '⠓',
+    'ं': '⠂', 'ः': '⠄', 'ँ': '⠐', 'ऽ': '⠈', '।': '⠲',
+    ' ': ' ', ',': '⠂', '.': '⠲', '?': '⠦', '!': '⠖'
+}
+
+def convert_to_hindi_braille(hindi_text):
+    return ''.join([hindi_braille_map.get(char, char) for char in hindi_text])
+
+def select_image():
+    root = Tk()
+    root.withdraw()
+
+    file_path = filedialog.askopenfilename(title="Select Image", filetypes=[("Image files", "*.png;*.jpg;*.jpeg;*.bmp;*.gif")])
+
+    if file_path:
+        img = cv2.imread(file_path)
+        if img is None:
+            print(f"Error: Unable to load image from {file_path}")
+        else:
+            gray_image = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+            text = pytesseract.image_to_string(gray_image, lang=lang)
+
+            print("Extracted Hindi Text:")
+            print(text)
+
+            braille_text = convert_to_hindi_braille(text)
+            print("\nHindi Braille Text:")
+            print(braille_text)
+
+# Run the image selector
+select_image()
