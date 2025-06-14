@@ -1,0 +1,58 @@
+import cv2
+import pytesseract
+from tkinter import Tk, filedialog
+import os
+
+# Path to Tesseract executable
+pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
+
+# Tesseract language code for Kannada
+lang = 'kan'
+
+# TESSDATA path
+os.environ['TESSDATA_PREFIX'] = r'C:\Program Files\Tesseract-OCR\tessdata'
+
+# Basic Kannada Braille map (extend this for full coverage)
+kannada_braille_map = {
+    'ಅ': '⠁', 'ಆ': '⠡', 'ಇ': '⠊', 'ಈ': '⠘', 'ಉ': '⠥', 'ಊ': '⠳',
+    'ಋ': '⠚', 'ಎ': '⠢', 'ಏ': '⠑', 'ಐ': '⠜', 'ಒ': '⠕', 'ಓ': '⠪', 'ಔ': '⠺',
+    'ಕ': '⠅', 'ಖ': '⠣', 'ಗ': '⠛', 'ಘ': '⠡⠛', 'ಙ': '⠴',
+    'ಚ': '⠉', 'ಛ': '⠡⠉', 'ಜ': '⠚', 'ಝ': '⠡⠚', 'ಞ': '⠒',
+    'ಟ': '⠞', 'ಠ': '⠡⠞', 'ಡ': '⠙', 'ಢ': '⠡⠙', 'ಣ': '⠴',
+    'ತ': '⠞', 'ಥ': '⠡⠞', 'ದ': '⠙', 'ಧ': '⠡⠙', 'ನ': '⠝',
+    'ಪ': '⠏', 'ಫ': '⠣⠏', 'ಬ': '⠃', 'ಭ': '⠡⠃', 'ಮ': '⠍',
+    'ಯ': '⠽', 'ರ': '⠗', 'ಲ': '⠇', 'ವ': '⠧',
+    'ಶ': '⠱', 'ಷ': '⠡⠱', 'ಸ': '⠎', 'ಹ': '⠓',
+    'ಳ': '⠸', 'ೞ': '⠻', 'ಂ': '⠂', 'ಃ': '⠄', '್': '⠈',
+    ' ': ' ', ',': '⠂', '.': '⠲', '?': '⠦', '!': '⠖'
+}
+
+def convert_to_kannada_braille(text):
+    return ''.join([kannada_braille_map.get(char, char) for char in text])
+
+def select_image():
+    root = Tk()
+    root.withdraw()
+
+    file_path = filedialog.askopenfilename(
+        title="Select Image", 
+        filetypes=[("Image files", "*.png;*.jpg;*.jpeg;*.bmp;*.gif")]
+    )
+
+    if file_path:
+        img = cv2.imread(file_path)
+        if img is None:
+            print(f"Error: Unable to load image from {file_path}")
+        else:
+            gray_image = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+            text = pytesseract.image_to_string(gray_image, lang=lang)
+
+            print("Extracted Kannada Text:")
+            print(text)
+
+            braille_text = convert_to_kannada_braille(text)
+            print("\nKannada Braille Text:")
+            print(braille_text)
+
+# Run
+select_image()
