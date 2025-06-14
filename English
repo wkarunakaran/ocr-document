@@ -1,0 +1,51 @@
+import cv2
+import pytesseract
+from tkinter import Tk, filedialog
+import os
+
+# Set the path to Tesseract executable (change it based on your installation)
+pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
+
+# Set the language to English
+lang = 'eng'
+
+# Set the path to the Tesseract data files (optional if correctly installed)
+os.environ['TESSDATA_PREFIX'] = r'C:\Program Files\Tesseract-OCR\tessdata'
+
+# English Braille mappings
+english_braille_map = {
+    'a': '⠁', 'b': '⠃', 'c': '⠉', 'd': '⠙', 'e': '⠑',
+    'f': '⠋', 'g': '⠛', 'h': '⠓', 'i': '⠊', 'j': '⠚',
+    'k': '⠅', 'l': '⠇', 'm': '⠍', 'n': '⠝', 'o': '⠕',
+    'p': '⠏', 'q': '⠟', 'r': '⠗', 's': '⠎', 't': '⠞',
+    'u': '⠥', 'v': '⠧', 'w': '⠺', 'x': '⠭', 'y': '⠽',
+    'z': '⠵', ' ': ' ', ',': '⠂', ';': '⠆', ':': '⠒',
+    '!': '⠖', '?': '⠦', '.': '⠲'
+}
+
+def convert_to_english_braille(english_text):
+    return ''.join([english_braille_map.get(char.lower(), char) for char in english_text])
+
+def select_image():
+    root = Tk()
+    root.withdraw()  # Hide the main window
+
+    file_path = filedialog.askopenfilename(title="Select Image", filetypes=[("Image files", "*.png;*.jpg;*.jpeg;*.bmp;*.gif")])
+
+    if file_path:
+        img = cv2.imread(file_path)
+        if img is None:
+            print(f"Error: Unable to load image from {file_path}")
+        else:
+            gray_image = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+            text = pytesseract.image_to_string(gray_image, lang=lang)
+            
+            print("Extracted English Text:")
+            print(text)
+
+            braille_text = convert_to_english_braille(text)
+            print("\nEnglish Braille Text:")
+            print(braille_text)
+
+# Call the function to select and process an image
+select_image()
