@@ -1,0 +1,61 @@
+import cv2
+import pytesseract
+from tkinter import Tk, filedialog
+import os
+
+# Set the path to Tesseract executable (change it based on your installation)
+pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
+
+# Set the language to Marathi
+lang = 'mar'  # Marathi language code for Tesseract
+
+# Set the path to the Tesseract data files
+os.environ['TESSDATA_PREFIX'] = r'C:\Program Files\Tesseract-OCR\tessdata'
+
+# Marathi Braille mappings
+marathi_braille_map = {
+    'अ': '⠁', 'आ': '⠜', 'इ': '⠊', 'ई': '⠔', 'उ': '⠕', 'ऊ': '⠾', 'ऋ': '⠗',
+    'ए': '⠑', 'ऐ': '⠜⠊', 'ओ': '⠕', 'औ': '⠕⠕',
+    'क': '⠅', 'ख': '⠩', 'ग': '⠛', 'घ': '⠹', 'ङ': '⠝',
+    'च': '⠉', 'छ': '⠡', 'ज': '⠚', 'झ': '⠯', 'ञ': '⠻',
+    'ट': '⠾', 'ठ': '⠞', 'ड': '⠹', 'ढ': '⠽', 'ण': '⠻',
+    'त': '⠹', 'थ': '⠹⠹', 'द': '⠙', 'ध': '⠹⠙', 'न': '⠝',
+    'प': '⠏', 'फ': '⠋', 'ब': '⠃', 'भ': '⠃⠃', 'म': '⠍',
+    'य': '⠽', 'र': '⠗', 'ल': '⠇', 'ळ': '⠸', 'व': '⠺',
+    'श': '⠩', 'ष': '⠯', 'स': '⠎', 'ह': '⠓',
+    'ा': '⠜', 'ि': '⠊', 'ी': '⠔', 'ु': '⠕', 'ू': '⠾',
+    'ृ': '⠗', 'े': '⠑', 'ै': '⠜⠊', 'ो': '⠕', 'ौ': '⠕⠕',
+    'ं': '⠴', 'ः': '⠦', 'ँ': '⠣', '्': '',
+    ' ': ' ', ',': '⠂', ';': '⠆', ':': '⠒', '!': '⠖', '?': '⠦', '.': '⠲'
+}
+
+def convert_to_marathi_braille(text):
+    return ''.join([marathi_braille_map.get(char, char) for char in text])
+
+def select_image():
+    root = Tk()
+    root.withdraw()  # Hide the Tkinter window
+
+    file_path = filedialog.askopenfilename(
+        title="Select Image",
+        filetypes=[("Image files", "*.png;*.jpg;*.jpeg;*.bmp;*.gif")]
+    )
+
+    if file_path:
+        img = cv2.imread(file_path)
+        if img is None:
+            print(f"Error: Unable to load image from {file_path}")
+            return
+
+        gray_image = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+        text = pytesseract.image_to_string(gray_image, lang=lang)
+
+        print("Extracted Marathi Text:")
+        print(text)
+
+        braille_text = convert_to_marathi_braille(text)
+        print("\nMarathi Braille Text:")
+        print(braille_text)
+
+# Run the image selection and conversion
+select_image()
